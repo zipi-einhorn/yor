@@ -50,7 +50,7 @@ func TestCliArgParsing(t *testing.T) {
 		if e, ok := err.(*exec.ExitError); ok && !e.Success() {
 			return
 		}
-		assert.Fail(t, "Should have failed already")
+		 assert.Fail(t, "Should have failed already")
 	})
 
 	t.Run("Test tag argument parsing - valid tag groups", func(t *testing.T) {

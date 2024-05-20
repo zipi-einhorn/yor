@@ -97,6 +97,7 @@ func (p *CloudformationParser) ValidFile(filePath string) bool {
 }
 
 func goformationParse(file string) (*cloudformation.Template, error) {
+
 	var template *cloudformation.Template
 	var err error
 	defer func() {

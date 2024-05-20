@@ -320,7 +320,7 @@ func commentSkipResorces(filePath string)[] string{
 	}
 	fileLines := strings.Split(string(file), "\n")
 	for i, line := range fileLines {
-	 if i>0{
+	 if i > 0 {
        if strings.TrimSpace(fileLines[i-1])=="# yor:skip" {
         arr = append(arr,strings.Trim(strings.TrimSpace(line),":") )
 }

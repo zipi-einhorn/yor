@@ -21,8 +21,8 @@ import (
 	"github.com/bridgecrewio/yor/src/common/tagging/tags"
 	taggingUtils "github.com/bridgecrewio/yor/src/common/tagging/utils"
 	"github.com/bridgecrewio/yor/src/common/utils"
-	slsStructure "github.com/bridgecrewio/yor/src/serverless/structure"
-	tfStructure "github.com/bridgecrewio/yor/src/terraform/structure"
+	// slsStructure "github.com/bridgecrewio/yor/src/serverless/structure"
+	// tfStructure "github.com/bridgecrewio/yor/src/terraform/structure"
 )
 
 type Runner struct {
@@ -73,11 +73,11 @@ func (r *Runner) Init(commands *clioptions.TagOptions) error {
 		}
 		switch p {
 		case "Terraform":
-			r.parsers = append(r.parsers, &tfStructure.TerraformParser{})
+			// r.parsers = append(r.parsers, &tfStructure.TerraformParser{})
 		case "CloudFormation":
 			r.parsers = append(r.parsers, &cfnStructure.CloudformationParser{})
 		case "Serverless":
-			r.parsers = append(r.parsers, &slsStructure.ServerlessParser{})
+			// r.parsers = append(r.parsers, &slsStructure.ServerlessParser{})
 		default:
 			logger.Warning(fmt.Sprintf("ignoring unknown parser %#v", err))
 		}
@@ -179,10 +179,13 @@ func (r *Runner) TagFile(file string) {
 			continue
 		}
 		logger.Info(fmt.Sprintf("Tagging %v\n", file))
-		blocks, err := parser.ParseFile(file)
+		blocks,skipArr, err := parser.ParseFile(file)
 		if err != nil {
 			logger.Info(fmt.Sprintf("Failed to parse file %v with parser %v", file, reflect.TypeOf(parser)))
 			continue
+		}
+		for _,value :=range skipArr{
+			r.skippedResources = append(r.skippedResources, value)
 		}
 		isFileTaggable := false
 		for _, block := range blocks {

@@ -10,6 +10,7 @@ import (
 )
 
 type CloudformationBlock struct {
+	
 	structure.Block
 }
 

@@ -44,6 +44,7 @@ type Runner struct {
 const WorkersNumEnvKey = "YOR_WORKER_NUM"
 
 func (r *Runner) Init(commands *clioptions.TagOptions) error {
+
 	dir := commands.Directory
 	extraTags, extraTagGroups, err := loadExternalResources(commands.CustomTagging)
 	if err != nil {
@@ -109,6 +110,7 @@ func (r *Runner) Init(commands *clioptions.TagOptions) error {
 }
 
 func (r *Runner) worker(fileChan chan string, wg *sync.WaitGroup) {
+
 	for file := range fileChan {
 		r.TagFile(file)
 		wg.Done()
@@ -127,6 +129,7 @@ func (r *Runner) TagDirectory() (*reports.ReportService, error) {
 		return nil
 	})
 	if err != nil {
+		
 		logger.Error("Failed to run Walk() on root dir", r.dir)
 	}
 

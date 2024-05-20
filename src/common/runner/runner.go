@@ -21,8 +21,8 @@ import (
 	"github.com/bridgecrewio/yor/src/common/tagging/tags"
 	taggingUtils "github.com/bridgecrewio/yor/src/common/tagging/utils"
 	"github.com/bridgecrewio/yor/src/common/utils"
-	slsStructure "github.com/bridgecrewio/yor/src/serverless/structure"
-	tfStructure "github.com/bridgecrewio/yor/src/terraform/structure"
+	// slsStructure "github.com/bridgecrewio/yor/src/serverless/structure"
+	// tfStructure "github.com/bridgecrewio/yor/src/terraform/structure"
 )
 
 type Runner struct {
@@ -72,11 +72,11 @@ func (r *Runner) Init(commands *clioptions.TagOptions) error {
 		}
 		switch p {
 		case "Terraform":
-			r.parsers = append(r.parsers, &tfStructure.TerraformParser{})
+			// r.parsers = append(r.parsers, &tfStructure.TerraformParser{})
 		case "CloudFormation":
 			r.parsers = append(r.parsers, &cfnStructure.CloudformationParser{})
 		case "Serverless":
-			r.parsers = append(r.parsers, &slsStructure.ServerlessParser{})
+			// r.parsers = append(r.parsers, &slsStructure.ServerlessParser{})
 		default:
 			logger.Warning(fmt.Sprintf("ignoring unknown parser %#v", err))
 		}
@@ -175,15 +175,14 @@ func (r *Runner) TagFile(file string) {
 			logger.Debug(fmt.Sprintf("%v parser Skipping %v", parser.Name(), file))
 			continue
 		}
-		skipArr:=commentSkipResorces(file)
-		for _,resourceName:=range skipArr{
-			r.skippedResources = append(r.skippedResources, resourceName)
-		}
 		logger.Info(fmt.Sprintf("Tagging %v\n", file))
-		blocks, err := parser.ParseFile(file)
+		blocks,skipArr, err := parser.ParseFile(file)
 		if err != nil {
 			logger.Info(fmt.Sprintf("Failed to parse file %v with parser %v", file, reflect.TypeOf(parser)))
 			continue
+		}
+		for _,value :=range skipArr{
+			r.skippedResources = append(r.skippedResources, value)
 		}
 		isFileTaggable := false
 		for _, block := range blocks {
@@ -310,21 +309,4 @@ func (r *Runner) isFileSkipped(p common.IParser, file string) bool {
 		}
 	}
 	return !p.ValidFile(file)
-}
-func commentSkipResorces(filePath string)[] string{
-	arr:=make([]string,0)
-	file, err := os.ReadFile(filePath)
-	if err != nil {
-		logger.Warning(fmt.Sprintf("failed to read file %s", filePath))
-		return nil
-	}
-	fileLines := strings.Split(string(file), "\n")
-	for i, line := range fileLines {
-	 if i > 0 {
-       if strings.TrimSpace(fileLines[i-1])=="# yor:skip" {
-        arr = append(arr,strings.Trim(strings.TrimSpace(line),":") )
-}
-	}
-}
-	return arr
 }

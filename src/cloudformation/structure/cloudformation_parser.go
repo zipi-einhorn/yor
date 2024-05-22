@@ -38,6 +38,7 @@ const EnvVarsPath = "Resources/*/Properties/Environment/Variables/*"
 var goformationLock sync.Mutex
 
 func (p *CloudformationParser) Name() string {
+
 	return "CloudFormation"
 }
 
@@ -80,6 +81,7 @@ func (p *CloudformationParser) ValidFile(filePath string) bool {
 	}
 
 	if !strings.HasSuffix(filePath, ".json") {
+		
 		bytes, err = sanathyaml.YAMLToJSON(bytes)
 		if err != nil {
 			logger.Warning(fmt.Sprintf("Error converting YAML to JSON for file %s, skipping: %v", filePath, err))

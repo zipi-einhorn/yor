@@ -17,9 +17,20 @@ import (
 
 const SingleIndent = "  "
 
+var skipArr = make ([]string, 0) 
+
+func AppendSkippesRunner( skippedResources *[]string){
+
+ *skippedResources = append(*skippedResources,skipArr...)
+ skipArr = skipArr[:0]
+ 
+}
+
+
 func WriteYAMLFile(readFilePath string, blocks []structure.IBlock, writeFilePath string, tagsAttributeName string, resourcesStartToken string) error {
 	// #nosec G304
 	// read file bytes
+	
 	originFileSrc, err := os.ReadFile(readFilePath)
 	if err != nil {
 		return fmt.Errorf("failed to read file %s because %s", readFilePath, err)
@@ -293,6 +304,11 @@ func MapResourcesLineYAML(filePath string, resourceNames []string, resourcesStar
 		}
 
 		if readResources {
+			if i>0{
+				if strings.TrimSpace(fileLines[i-1])=="# yor:skip" {
+				 skipArr = append(skipArr,strings.Trim(strings.TrimSpace(line),":") )
+		    }
+	    }
 			lineIndent := countLeadingSpaces(line)
 			if lineIndent <= resourcesIndent && strings.TrimSpace(line) != "" && !strings.Contains(line, "#") {
 				// No longer inside resources block, get the last line of the previous resource if exists

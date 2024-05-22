@@ -1,5 +1,5 @@
 package main
-
+//ניסוי
 import (
 	"fmt"
 	"os"
@@ -51,6 +51,9 @@ func listTagGroupsCommand() *cli.Command {
 
 func listTagsCommand() *cli.Command {
 	tagGroupsArg := "tag-groups"
+
+
+
 	return &cli.Command{
 		Name:  "list-tags",
 		Usage: "List the tags yor will create if possible",
@@ -144,7 +147,7 @@ func tagCommand() *cli.Command {
 			&cli.StringSliceFlag{
 				Name:        skipTagsArg,
 				Aliases:     []string{"s"},
-				Usage:       "run yor skipping the specified tags",
+				Usage:       "run yor skipping the specified tags!",
 				Value:       cli.NewStringSlice(),
 				DefaultText: "yor_trace",
 			},
@@ -252,6 +255,7 @@ func listTagGroups() error {
 }
 
 func listTags(options *clioptions.ListTagsOptions) error {
+	//פה ניסיתי
 	var tagGroup tagging.ITagGroup
 	tagsByGroup := make(map[string][]tags.ITag)
 	for _, group := range options.TagGroups {
@@ -259,7 +263,7 @@ func listTags(options *clioptions.ListTagsOptions) error {
 		if tagGroup == nil {
 			return fmt.Errorf("tag group %v is not supported", group)
 		}
-		tagGroup.InitTagGroup("", nil, nil)
+		tagGroup.InitTagGroup(" ", nil, nil)
 		tagsByGroup[group] = tagGroup.GetTags()
 	}
 	reports.ReportServiceInst.PrintTagGroupTags(tagsByGroup)

@@ -23,7 +23,6 @@ import (
 	"github.com/bridgecrewio/yor/src/common/utils"
 	slsStructure "github.com/bridgecrewio/yor/src/serverless/structure"
 	tfStructure "github.com/bridgecrewio/yor/src/terraform/structure"
-	"github.com/bridgecrewio/yor/src/common/yaml"
 )
 
 type Runner struct {
@@ -179,7 +178,7 @@ func (r *Runner) TagFile(file string) {
 		}
 		logger.Info(fmt.Sprintf("Tagging %v\n", file))
 		blocks, err := parser.ParseFile(file)
-		yaml.AppendSkippesRunner(&r.skippedResources)
+		utils.AppendSkippesRunner(&r.skippedResources)
 		if err != nil {
 			logger.Info(fmt.Sprintf("Failed to parse file %v with parser %v", file, reflect.TypeOf(parser)))
 			continue

@@ -13,18 +13,12 @@ import (
 	"github.com/bridgecrewio/yor/src/common/tagging/tags"
 	"github.com/bridgecrewio/yor/src/common/utils"
 	"github.com/sanathkr/yaml"
+	
 )
 
 const SingleIndent = "  "
 
-var skipArr = make ([]string, 0) 
 
-func AppendSkippesRunner( skippedResources *[]string){
-
- *skippedResources = append(*skippedResources,skipArr...)
- skipArr = skipArr[:0]
- 
-}
 
 
 func WriteYAMLFile(readFilePath string, blocks []structure.IBlock, writeFilePath string, tagsAttributeName string, resourcesStartToken string) error {
@@ -298,15 +292,21 @@ func MapResourcesLineYAML(filePath string, resourceNames []string, resourcesStar
 	for i, line := range fileLines {
 		cleanContent := strings.TrimSpace(line)
 		if strings.HasPrefix(cleanContent, resourcesStartToken+":") {
+			if strings.TrimSpace(fileLines[i-1])=="# yor:skip all" {
+				utils.SkipArr = append(utils.SkipArr, resourceNames...)
+			}
 			readResources = true
 			resourcesIndent = countLeadingSpaces(line)
 			continue
 		}
 
 		if readResources {
+
 			if i>0{
+
 				if strings.TrimSpace(fileLines[i-1])=="# yor:skip" {
-				 skipArr = append(skipArr,strings.Trim(strings.TrimSpace(line),":") )
+				 utils.SkipArr = append(utils.SkipArr,strings.Trim(strings.TrimSpace(line),":") )
+				 
 		    }
 	    }
 			lineIndent := countLeadingSpaces(line)

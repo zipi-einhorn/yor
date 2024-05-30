@@ -16,6 +16,9 @@ import (
 )
 
 const SingleIndent = "  "
+// var skipArr = make ([]string, 0) 
+
+
 
 func WriteYAMLFile(readFilePath string, blocks []structure.IBlock, writeFilePath string, tagsAttributeName string, resourcesStartToken string) error {
 	// #nosec G304
@@ -266,8 +269,11 @@ func FindTagsLinesYAML(textLines []string, tagsAttributeName string) (structure.
 	return tagsLines, tagsExist
 }
 
+// נוצר מערך חדש עם מפתח - שם המשאב, והערך - שורת ההתחלה ושורת הסיום
 func MapResourcesLineYAML(filePath string, resourceNames []string, resourcesStartToken string) map[string]*structure.Lines {
+
 	resourceToLines := make(map[string]*structure.Lines)
+	// var resourceToSkipp int
 	for _, resourceName := range resourceNames {
 		// initialize a map between resource name and its lines in file
 		resourceToLines[resourceName] = &structure.Lines{Start: -1, End: -1}
@@ -278,7 +284,7 @@ func MapResourcesLineYAML(filePath string, resourceNames []string, resourcesStar
 		logger.Warning(fmt.Sprintf("failed to read file %s", filePath))
 		return nil
 	}
-
+      skipAllResources := false
 	readResources := false
 	latestResourceName := ""
 	fileLines := strings.Split(string(file), "\n")
@@ -286,11 +292,26 @@ func MapResourcesLineYAML(filePath string, resourceNames []string, resourcesStar
 	// iterate file line by line
 	for i, line := range fileLines {
 		cleanContent := strings.TrimSpace(line)
+
+		if !readResources && strings.HasPrefix(cleanContent, "#yor:skipAll")  {
+				utils.SkipResByComment = append(utils.SkipResByComment, resourceNames...)
+				skipAllResources = true
+			
+		}
+
 		if strings.HasPrefix(cleanContent, resourcesStartToken+":") {
 			readResources = true
 			resourcesIndent = countLeadingSpaces(line)
 			continue
 		}
+
+		if readResources {
+			if i>0{
+				if strings.TrimSpace(fileLines[i-1])=="#yor:skip" && !skipAllResources{
+					utils.SkipResByComment = append(utils.SkipResByComment, strings.Trim(strings.TrimSpace(line),":") )
+		    }
+	    }
+	}
 
 		if readResources {
 			lineIndent := countLeadingSpaces(line)
@@ -302,17 +323,26 @@ func MapResourcesLineYAML(filePath string, resourceNames []string, resourcesStar
 				}
 				break
 			}
+
 			for _, resName := range resourceNames {
 				resNameRegex := regexp.MustCompile(fmt.Sprintf("^ {1,5}%v:", resName))
 				if resNameRegex.Match([]byte(line)) {
-					if latestResourceName != "" {
+					// _, exists := resourceToLines[latestResourceName]
+					// if latestResourceName != "" && exists {
+						if latestResourceName != "" {
+
 						// Complete previous function block
 						resourceToLines[latestResourceName].End = findLastNonEmptyLine(fileLines, i-1)
-					}
+						}
+					// }
 					latestResourceName = resName
-					resourceToLines[latestResourceName].Start = i
+					// _, exists = resourceToLines[latestResourceName]
+					// if exists {
+						resourceToLines[latestResourceName].Start = i
+					// }
 					break
 				}
+
 			}
 			if !strings.HasPrefix(line, " ") && strings.TrimSpace(line) != "" && readResources && latestResourceName != "" && !strings.HasPrefix(line, "#") {
 				// This is no longer in the functions block, complete last function block
@@ -321,13 +351,17 @@ func MapResourcesLineYAML(filePath string, resourceNames []string, resourcesStar
 			}
 		}
 	}
+
 	if latestResourceName != "" && resourceToLines[latestResourceName].End == -1 {
 		// Handle last line of resource is last line of file
 		resourceToLines[latestResourceName].End = findLastNonEmptyLine(fileLines, len(fileLines)-1)
 	}
+
 	return resourceToLines
 }
 
+
+// מחזיר את הרווחים בהתחלה
 func countLeadingSpaces(line string) int {
 	return len(line) - len(strings.TrimLeft(line, " "))
 }

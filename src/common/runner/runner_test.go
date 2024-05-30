@@ -221,6 +221,24 @@ func TestRunnerInternals(t *testing.T) {
 		assert.NotContains(t, output, "aws_s3_bucket.test-bucket")
 	})
 
+	t.Run("Test skip resource by comment", func(t *testing.T) {
+	
+		options := clioptions.TagOptions{
+			Directory: "../../../tests/terraform/skipComment/skipResource.tf",
+			Parsers: []string{"Terraform"},
+		}
+
+		runner := Runner{}
+		runner.Init(&options)
+		runner.parsers[0].ParseFile(options.Directory)
+		utils.AppendSkippedRunner(&runner.skippedResources)
+
+		result := make([]string, 0)
+		result = append(result,"aws_vpc.example_vpc","aws_subnet.example_subnet", "aws_instance.example_instance"  )
+	
+		assert.Equal(t, result, runner.skippedResources)
+	})
+
 	t.Run("Test skip resource - cloudformation", func(t *testing.T) {
 		runner := Runner{}
 		rootDir := "../../../tests/cloudformation"

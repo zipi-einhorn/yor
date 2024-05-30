@@ -132,6 +132,7 @@ func (p *TerraformParser) ParseFile(filePath string) ([]structure.IBlock, error)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read file %s because %s", filePath, err)
 	}
+	lines := strings.Split(string(src), "\n")
 
 	// parse the file into hclwrite.File and hclsyntax.File to allow getting existing tags and lines
 	hclFile, diagnostics := hclwrite.ParseConfig(src, filePath, hcl.InitialPos)
@@ -153,6 +154,7 @@ func (p *TerraformParser) ParseFile(filePath string) ([]structure.IBlock, error)
 
 	rawBlocks := hclFile.Body().Blocks()
 	parsedBlocks := make([]structure.IBlock, 0)
+	skipAll := false
 	for i, block := range rawBlocks {
 		if !utils.InSlice(SupportedBlockTypes, block.Type()) {
 			continue
@@ -174,6 +176,20 @@ func (p *TerraformParser) ParseFile(filePath string) ([]structure.IBlock, error)
 		}
 		terraformBlock.Init(filePath, block)
 		terraformBlock.AddHclSyntaxBlock(syntaxBlocks[i])
+		line := terraformBlock.GetLines().Start
+		// Find the line above the specified line index
+
+		if line > 1 && line <= len(lines) {
+			lineAbove := lines[line-2]
+			if strings.TrimSpace(lineAbove) == "#yor:skipAll" {
+				skipAll = true
+			}
+
+			if strings.TrimSpace(lineAbove) == "#yor:skip" || skipAll {
+				utils.SkipResByComment = append(utils.SkipResByComment, terraformBlock.GetResourceID())
+			}
+		}
+
 		parsedBlocks = append(parsedBlocks, terraformBlock)
 	}
 

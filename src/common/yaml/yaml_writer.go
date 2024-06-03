@@ -18,8 +18,6 @@ import (
 const SingleIndent = "  "
 
 
-
-
 func WriteYAMLFile(readFilePath string, blocks []structure.IBlock, writeFilePath string, tagsAttributeName string, resourcesStartToken string) error {
 	// #nosec G304
 	// read file bytes
@@ -269,11 +267,11 @@ func FindTagsLinesYAML(textLines []string, tagsAttributeName string) (structure.
 	return tagsLines, tagsExist
 }
 
-// נוצר מערך חדש עם מפתח - שם המשאב, והערך - שורת ההתחלה ושורת הסיום
+
 func MapResourcesLineYAML(filePath string, resourceNames []string, resourcesStartToken string) map[string]*structure.Lines {
 
 	resourceToLines := make(map[string]*structure.Lines)
-	// var resourceToSkipp int
+	
 	for _, resourceName := range resourceNames {
 		// initialize a map between resource name and its lines in file
 		resourceToLines[resourceName] = &structure.Lines{Start: -1, End: -1}
@@ -327,19 +325,16 @@ func MapResourcesLineYAML(filePath string, resourceNames []string, resourcesStar
 			for _, resName := range resourceNames {
 				resNameRegex := regexp.MustCompile(fmt.Sprintf("^ {1,5}%v:", resName))
 				if resNameRegex.Match([]byte(line)) {
-					// _, exists := resourceToLines[latestResourceName]
-					// if latestResourceName != "" && exists {
+
 						if latestResourceName != "" {
 
 						// Complete previous function block
 						resourceToLines[latestResourceName].End = findLastNonEmptyLine(fileLines, i-1)
 						}
-					// }
+
 					latestResourceName = resName
-					// _, exists = resourceToLines[latestResourceName]
-					// if exists {
+
 						resourceToLines[latestResourceName].Start = i
-					// }
 					break
 				}
 
@@ -361,7 +356,7 @@ func MapResourcesLineYAML(filePath string, resourceNames []string, resourcesStar
 }
 
 
-// מחזיר את הרווחים בהתחלה
+
 func countLeadingSpaces(line string) int {
 	return len(line) - len(strings.TrimLeft(line, " "))
 }

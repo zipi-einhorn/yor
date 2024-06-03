@@ -186,7 +186,7 @@ func TestExtractIndentationOfLine(t *testing.T) {
 	}
 }
 func TestYaml_ResorceSkipTagging(t *testing.T) {
-	t.Run("Test some resources with skip comment added to utils.SkipArr", func(t *testing.T) {
+	t.Run("Test some resources with skip comment added to utils.SkipResByComment", func(t *testing.T) {
 		filePath := "../../../tests/cloudformation/resources/SkipYamlComment/ebs_skip.yaml"
 		resorseSkip := []string{"NewVolume"}
 		expectedResourceNames := []string{"NewVolume", "NewVolume2"}
@@ -195,7 +195,7 @@ func TestYaml_ResorceSkipTagging(t *testing.T) {
 		assert.NotEqual(t, utils.SkipResByComment, "NewVolume2")
 		utils.SkipResByComment = utils.SkipResByComment[:0]
 	})
-	t.Run("All resources with skip comment added to utils.SkipArr", func(t *testing.T) {
+	t.Run("All resources with skip comment added to utils.SkipResByComment", func(t *testing.T) {
 		filePath := "../../../tests/cloudformation/resources/SkipYamlComment/ebs_skipAll.yaml"
 		resorseSkip := []string{"NewVolume", "NewVolume2"}
 		expectedResourceNames := []string{"NewVolume", "NewVolume2"}
@@ -203,7 +203,7 @@ func TestYaml_ResorceSkipTagging(t *testing.T) {
 		assert.Equal(t, utils.SkipResByComment, resorseSkip)
 		utils.SkipResByComment = utils.SkipResByComment[:0]
 	})
-	t.Run("No resources with skip all comment in the file, utils.SkipArr should be empty", func(t *testing.T) {
+	t.Run("No resources with skip all comment in the file, utils.SkipResByComment should be empty", func(t *testing.T) {
 		filePath := "../../../tests/cloudformation/resources/SkipYamlComment/ebs_noSkip.yaml"
 		expectedResourceNames := []string{"NewVolume"}
 		MapResourcesLineYAML(filePath, expectedResourceNames, "Resources")
@@ -211,7 +211,6 @@ func TestYaml_ResorceSkipTagging(t *testing.T) {
 		utils.SkipResByComment = utils.SkipResByComment[:0]
 	})
 }
-
 
 func TestTagReplacement(t *testing.T) {
 	t.Run("TestCFNTagReplacement", func(t *testing.T) {

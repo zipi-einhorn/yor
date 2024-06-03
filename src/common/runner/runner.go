@@ -169,7 +169,6 @@ func (r *Runner) isSkippedResource(resource string) bool {
 	return false
 }
 
-
 func (r *Runner) TagFile(file string) {
 	for _, parser := range r.parsers {
 		if r.isFileSkipped(parser, file) {

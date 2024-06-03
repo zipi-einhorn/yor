@@ -151,7 +151,7 @@ func (p *TerraformParser) ParseFile(filePath string) ([]structure.IBlock, error)
 	}
 
 	syntaxBlocks := hclSyntaxFile.Body.(*hclsyntax.Body).Blocks
-    skipAll := false
+	skipAll := false
 	rawBlocks := hclFile.Body().Blocks()
 	parsedBlocks := make([]structure.IBlock, 0)
 	for i, block := range rawBlocks {
@@ -159,7 +159,7 @@ func (p *TerraformParser) ParseFile(filePath string) ([]structure.IBlock, error)
 			continue
 		}
 		blockID := strings.Join(block.Labels(), ".")
-		
+
 		terraformBlock, err := p.parseBlock(block, filePath)
 		if err != nil {
 			if strings.HasPrefix(err.Error(), "resource belongs to skipped") || strings.HasPrefix(err.Error(), "could not find client") {
@@ -179,12 +179,12 @@ func (p *TerraformParser) ParseFile(filePath string) ([]structure.IBlock, error)
 		line := terraformBlock.GetLines().Start
 		if line > 1 && line <= len(lines) {
 			lineAbove := lines[line-2]
-			if strings.TrimSpace(lineAbove)== "# yor:skip all"{
-			   skipAll=true
+			if strings.TrimSpace(lineAbove) == "# yor:skip all" {
+				skipAll = true
 			}
-			
-			if strings.TrimSpace(lineAbove)=="# yor:skip" || skipAll{
-			   utils.SkipArr = append(utils.SkipArr, terraformBlock.GetResourceID())
+
+			if strings.TrimSpace(lineAbove) == "# yor:skip" || skipAll {
+				utils.SkipArr = append(utils.SkipArr, terraformBlock.GetResourceID())
 			}
 		}
 		parsedBlocks = append(parsedBlocks, terraformBlock)
@@ -192,8 +192,6 @@ func (p *TerraformParser) ParseFile(filePath string) ([]structure.IBlock, error)
 
 	return parsedBlocks, nil
 }
-
-
 
 func (p *TerraformParser) WriteFile(readFilePath string, blocks []structure.IBlock, writeFilePath string) error {
 	// #nosec G304

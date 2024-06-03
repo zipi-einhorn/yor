@@ -180,6 +180,7 @@ func (r *Runner) TagFile(file string) {
 		}
 		logger.Info(fmt.Sprintf("Tagging %v\n", file))
 		blocks, err := parser.ParseFile(file)
+		utils.AppendSkippedRunner(&r.skippedResources)
 		if err != nil {
 			logger.Info(fmt.Sprintf("Failed to parse file %v with parser %v", file, reflect.TypeOf(parser)))
 			continue

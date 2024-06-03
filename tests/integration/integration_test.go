@@ -254,6 +254,37 @@ func TestRunResults(t *testing.T) {
 			}
 		}
 	})
+
+	t.Run("Test tagging terraform and cloudFormation files and skip resource by comment", func(t *testing.T) {
+		yorRunner := runner.Runner{}
+
+		err := yorRunner.Init(&clioptions.TagOptions{
+			Directory: "..\\terraform\\skipComment",
+			TagGroups: getTagGroups(),
+			Parsers:   []string{"Terraform", "CloudFormation"},
+		})
+
+		tfFileBytes, _ := os.ReadFile("..\\terraform\\skipComment\\skipResource.tf")
+		yamlFileBytes, _ := os.ReadFile("..\\terraform\\skipComment\\ebs.yaml")
+
+		defer func() {
+			_ = os.WriteFile("..\\terraform\\skipComment\\skipResource.tf", tfFileBytes, 0644)
+			_ = os.WriteFile("..\\terraform\\skipComment\\ebs.yaml", yamlFileBytes, 0644)
+		}()
+
+		failIfErr(t, err)
+		reportService, err := yorRunner.TagDirectory()
+		failIfErr(t, err)
+
+		reportService.CreateReport()
+		report := reportService.GetReport()
+
+		newTags := report.NewResourceTags
+		for _, newTag := range newTags {
+			assert.NotEqual(t, "aws_vpc.example_vpc", newTag.ResourceID)
+			assert.NotEqual(t, "NewVolume1", newTag.ResourceID)
+		}
+	})
 }
 
 func TestTagUncommittedResults(t *testing.T) {

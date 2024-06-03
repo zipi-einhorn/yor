@@ -88,7 +88,7 @@ func Test_loadExternalTags(t *testing.T) {
 func Test_TagCFNDir(t *testing.T) {
 	t.Run("tag cloudformation yaml with tags", func(t *testing.T) {
 		options := clioptions.TagOptions{
-			Directory: "../../../tests/cloudformation/resources/ebs",
+			Directory: "../../../tests/cloudformation/resources/ebs/ebs.yaml",
 			TagGroups: taggingUtils.GetAllTagGroupsNames(),
 			Parsers:   []string{"Terraform", "CloudFormation", "Serverless"},
 		}

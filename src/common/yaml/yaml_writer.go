@@ -287,7 +287,7 @@ func MapResourcesLineYAML(filePath string, resourceNames []string, resourcesStar
 	for i, line := range fileLines {
 		cleanContent := strings.TrimSpace(line)
 		if strings.HasPrefix(cleanContent, resourcesStartToken+":") {
-			if strings.TrimSpace(fileLines[i-1]) == "# yor:skip all" {
+			if strings.ToUpper(strings.TrimSpace(fileLines[i-1])) == "#YOR:SKIPALL" {
 				utils.SkipArr = append(utils.SkipArr, resourceNames...)
 			}
 			readResources = true
@@ -296,7 +296,7 @@ func MapResourcesLineYAML(filePath string, resourceNames []string, resourcesStar
 		}
 		if readResources {
 			if i > 0 {
-				if strings.TrimSpace(fileLines[i-1]) == "# yor:skip" {
+				if strings.ToUpper(strings.TrimSpace(fileLines[i-1])) == "#YOR.SKIP" {
 					utils.SkipArr = append(utils.SkipArr, strings.Trim(strings.TrimSpace(line), ":"))
 				}
 			}

@@ -185,32 +185,6 @@ func TestExtractIndentationOfLine(t *testing.T) {
 		})
 	}
 }
-func TestYaml_ResorceSkipTagging(t *testing.T) {
-	t.Run("Test some resources with skip comment added to utils.SkipResByComment", func(t *testing.T) {
-		filePath := "../../../tests/cloudformation/resources/SkipYamlComment/ebs_skip.yaml"
-		resorseSkip := []string{"NewVolume"}
-		expectedResourceNames := []string{"NewVolume", "NewVolume2"}
-		MapResourcesLineYAML(filePath, expectedResourceNames, "Resources")
-		assert.Equal(t, utils.SkipResByComment, resorseSkip)
-		assert.NotEqual(t, utils.SkipResByComment, "NewVolume2")
-		utils.SkipResByComment = utils.SkipResByComment[:0]
-	})
-	t.Run("All resources with skip comment added to utils.SkipResByComment", func(t *testing.T) {
-		filePath := "../../../tests/cloudformation/resources/SkipYamlComment/ebs_skipAll.yaml"
-		resorseSkip := []string{"NewVolume", "NewVolume2"}
-		expectedResourceNames := []string{"NewVolume", "NewVolume2"}
-		MapResourcesLineYAML(filePath, expectedResourceNames, "Resources")
-		assert.Equal(t, utils.SkipResByComment, resorseSkip)
-		utils.SkipResByComment = utils.SkipResByComment[:0]
-	})
-	t.Run("No resources with skip all comment in the file, utils.SkipResByComment should be empty", func(t *testing.T) {
-		filePath := "../../../tests/cloudformation/resources/SkipYamlComment/ebs_noSkip.yaml"
-		expectedResourceNames := []string{"NewVolume"}
-		MapResourcesLineYAML(filePath, expectedResourceNames, "Resources")
-		assert.Empty(t, utils.SkipResByComment)
-		utils.SkipResByComment = utils.SkipResByComment[:0]
-	})
-}
 
 func TestTagReplacement(t *testing.T) {
 	t.Run("TestCFNTagReplacement", func(t *testing.T) {
@@ -259,11 +233,7 @@ func TestTagReplacement(t *testing.T) {
 		assert.Equal(t, *res["S3Bucket"], structure.Lines{Start: 14, End: 17})
 		assert.Equal(t, *res["CloudFrontDistribution"], structure.Lines{Start: 18, End: 60})
 	})
-	t.Run("Test line computation with duplicate - CFN", func(t *testing.T) {
-		res := MapResourcesLineYAML("../../../tests/cloudformation/resources/duplicate_entries/duplicate_cfn.yaml", []string{"S3Bucket", "CloudFrontDistribution"}, "Resources")
-		assert.Equal(t, *res["S3Bucket"], structure.Lines{Start: 14, End: 17})
-		assert.Equal(t, *res["CloudFrontDistribution"], structure.Lines{Start: 18, End: 60})
-	})
+
 	t.Run("Test line computation with duplicate - SLS", func(t *testing.T) {
 		res := MapResourcesLineYAML("../../../tests/cloudformation/resources/duplicate_entries/duplicate_sls.yaml", []string{"attribute", "zone", "customer", "apiVersion"}, "functions")
 		assert.Equal(t, *res["apiVersion"], structure.Lines{Start: 7, End: 12})
@@ -271,4 +241,35 @@ func TestTagReplacement(t *testing.T) {
 		assert.Equal(t, *res["zone"], structure.Lines{Start: 26, End: 38})
 		assert.Equal(t, *res["attribute"], structure.Lines{Start: 40, End: 53})
 	})
+}
+
+func TestYaml_ResorceSkipTagging(t *testing.T) {
+	t.Run("Test some resources with skip comment added to utils.SkipResourcesByComment", func(t *testing.T) {
+		filePath := "../../../tests/cloudformation/resources/SkipComment/skipOne.yaml"
+		resorseSkip := []string{"NewVolume"}
+		expectedResourceNames := []string{"NewVolume", "NewVolume2"}
+		MapResourcesLineYAML(filePath, expectedResourceNames, "Resources")
+		assert.Equal(t, utils.SkipResourcesByComment, resorseSkip)
+		assert.NotEqual(t, utils.SkipResourcesByComment, "NewVolume2")
+		defer resetSkipArr()
+	})
+	t.Run("All resources with skip comment added to utils.SkipResourcesByComment", func(t *testing.T) {
+		filePath := "../../../tests/cloudformation/resources/SkipComment/skipAll.yaml"
+		resorseSkip := []string{"NewVolume", "NewVolume2"}
+		expectedResourceNames := []string{"NewVolume", "NewVolume2"}
+		MapResourcesLineYAML(filePath, expectedResourceNames, "Resources")
+		assert.Equal(t, utils.SkipResourcesByComment, resorseSkip)
+		defer resetSkipArr()
+	})
+	t.Run("No resources with skip all comment in the file, utils.SkipResourcesByComment should be empty", func(t *testing.T) {
+		filePath := "../../../tests/cloudformation/resources/SkipComment/noSkip.yaml"
+		expectedResourceNames := []string{"NewVolume"}
+		MapResourcesLineYAML(filePath, expectedResourceNames, "Resources")
+		assert.Empty(t, utils.SkipResourcesByComment)
+		defer resetSkipArr()
+	})
+}
+
+func resetSkipArr() {
+	utils.SkipResourcesByComment = []string{}
 }

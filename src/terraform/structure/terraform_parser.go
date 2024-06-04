@@ -151,15 +151,15 @@ func (p *TerraformParser) ParseFile(filePath string) ([]structure.IBlock, error)
 	}
 
 	syntaxBlocks := hclSyntaxFile.Body.(*hclsyntax.Body).Blocks
-
+	skipAll := false
 	rawBlocks := hclFile.Body().Blocks()
 	parsedBlocks := make([]structure.IBlock, 0)
-	skipAll := false
 	for i, block := range rawBlocks {
 		if !utils.InSlice(SupportedBlockTypes, block.Type()) {
 			continue
 		}
 		blockID := strings.Join(block.Labels(), ".")
+
 		terraformBlock, err := p.parseBlock(block, filePath)
 		if err != nil {
 			if strings.HasPrefix(err.Error(), "resource belongs to skipped") || strings.HasPrefix(err.Error(), "could not find client") {
@@ -177,19 +177,16 @@ func (p *TerraformParser) ParseFile(filePath string) ([]structure.IBlock, error)
 		terraformBlock.Init(filePath, block)
 		terraformBlock.AddHclSyntaxBlock(syntaxBlocks[i])
 		line := terraformBlock.GetLines().Start
-		// Find the line above the specified line index
-
 		if line > 1 && line <= len(lines) {
 			lineAbove := lines[line-2]
-			if strings.TrimSpace(lineAbove) == "#yor:skipAll" {
+			if strings.ToUpper(strings.TrimSpace(lineAbove))== "#YOR:SKIPALL" {
 				skipAll = true
 			}
-
-			if strings.TrimSpace(lineAbove) == "#yor:skip" || skipAll {
-				utils.SkipResByComment = append(utils.SkipResByComment, terraformBlock.GetResourceID())
+			
+			if strings.ToUpper(strings.TrimSpace(lineAbove)) == "#YOR:SKIP" || skipAll {
+				utils.SkipResourcesByComment = append(utils.SkipResourcesByComment, terraformBlock.GetResourceID())
 			}
 		}
-
 		parsedBlocks = append(parsedBlocks, terraformBlock)
 	}
 

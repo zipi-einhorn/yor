@@ -2,12 +2,13 @@ package runner
 
 import (
 	"fmt"
-	"github.com/bridgecrewio/yor/src/common/tagging/tags"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/bridgecrewio/yor/src/common/tagging/tags"
 
 	cloudformationStructure "github.com/bridgecrewio/yor/src/cloudformation/structure"
 	"github.com/bridgecrewio/yor/src/common/clioptions"
@@ -88,7 +89,7 @@ func Test_loadExternalTags(t *testing.T) {
 func Test_TagCFNDir(t *testing.T) {
 	t.Run("tag cloudformation yaml with tags", func(t *testing.T) {
 		options := clioptions.TagOptions{
-			Directory: "../../../tests/cloudformation/resources/ebs/ebs.yaml",
+			Directory: "../../../tests/cloudformation/resources/ebs",
 			TagGroups: taggingUtils.GetAllTagGroupsNames(),
 			Parsers:   []string{"Terraform", "CloudFormation", "Serverless"},
 		}
@@ -222,20 +223,16 @@ func TestRunnerInternals(t *testing.T) {
 	})
 
 	t.Run("Test skip resource by comment", func(t *testing.T) {
-	
 		options := clioptions.TagOptions{
-			Directory: "../../../tests/terraform/skipComment/skipResource.tf",
-			Parsers: []string{"Terraform"},
+			Directory: "../../../tests/terraform/skipComment/skipOne.tf",
+			Parsers:   []string{"Terraform"},
 		}
-
 		runner := Runner{}
 		runner.Init(&options)
 		runner.parsers[0].ParseFile(options.Directory)
 		utils.AppendSkippedRunner(&runner.skippedResources)
-
 		result := make([]string, 0)
-		result = append(result,"aws_vpc.example_vpc","aws_subnet.example_subnet", "aws_instance.example_instance"  )
-	
+		result = append(result, "aws_instance.example_instance")
 		assert.Equal(t, result, runner.skippedResources)
 	})
 
